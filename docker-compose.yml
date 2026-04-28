@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: iso27001-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: iso27001
+      POSTGRES_PASSWORD: iso27001
+      POSTGRES_DB: iso27001
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U iso27001 -d iso27001"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
