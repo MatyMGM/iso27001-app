@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
-import puppeteer, { Browser } from 'puppeteer';
+import chromium from '@sparticuz/chromium';
+import puppeteer, { Browser } from 'puppeteer-core';
 
 export interface ReportGap {
   control: string;
@@ -58,10 +59,13 @@ export class PdfService implements OnModuleDestroy {
 
   private getBrowser(): Promise<Browser> {
     if (!this.browserPromise) {
-      this.browserPromise = puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      });
+      this.browserPromise = chromium.executablePath().then((executablePath) =>
+        puppeteer.launch({
+          executablePath,
+          args: chromium.args,
+          headless: chromium.headless,
+        }),
+      );
     }
     return this.browserPromise;
   }
