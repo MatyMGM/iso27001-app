@@ -63,7 +63,7 @@ export class PdfService implements OnModuleDestroy {
         puppeteer.launch({
           executablePath,
           args: chromium.args,
-          headless: chromium.headless,
+          headless: true,
         }),
       );
     }
