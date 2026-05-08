@@ -4,9 +4,9 @@
   "description": "ISO 27001:2022 assessment backend (NestJS + Prisma + PostgreSQL)",
   "private": true,
   "scripts": {
-    "build": "nest build",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
+    "build": "npx nest build",
+    "start": "npx nest start",
+    "start:dev": "npx nest start --watch",
     "start:prod": "node dist/main",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
