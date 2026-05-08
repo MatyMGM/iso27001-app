@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { AssessmentFramework } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAssessmentDto } from './dto/create-assessment.dto';
 import { UpdateAssessmentDto } from './dto/update-assessment.dto';
@@ -180,7 +181,7 @@ export class AssessmentsService {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const framework = ((assessment as any).framework as string) ?? 'iso27001';
+    const framework = (((assessment as any).framework as string) ?? 'iso27001') as AssessmentFramework;
 
     // Compute score matching the frontend: answered answers + unanswered questions as "no"
     const allQuestions = await this.prisma.question.findMany({
