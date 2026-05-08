@@ -13,6 +13,18 @@ enum AssessmentStatus {
   analyzed
 }
 
+enum AssessmentType {
+  free
+  profesional
+  premium
+}
+
+enum AssessmentFramework {
+  iso27001
+  soc2
+  cis
+}
+
 enum AnswerValue {
   yes
   partial
@@ -26,40 +38,62 @@ enum Criticality {
   baja
 }
 
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  companies Company[]
+}
+
 model Company {
   id          String       @id @default(cuid())
   name        String
   industry    String?
   size        String?
+  userId      String?
+  user        User?        @relation(fields: [userId], references: [id])
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   assessments Assessment[]
+
+  @@index([userId])
 }
 
 model Assessment {
-  id        String           @id @default(cuid())
-  companyId String
-  company   Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  status    AssessmentStatus @default(draft)
-  aiReport  Json?
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-  answers   Answer[]
+  id               String              @id @default(cuid())
+  companyId        String
+  company          Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  status           AssessmentStatus    @default(draft)
+  type             AssessmentType      @default(premium)
+  framework        AssessmentFramework @default(iso27001)
+  aiReport         Json?
+  benchmarkConsent Boolean?
+  computedScore    Float?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  answers          Answer[]
 
   @@index([companyId])
+  @@index([benchmarkConsent])
+  @@index([framework])
 }
 
 model Question {
-  id           String      @id @default(cuid())
-  controlRef   String      @unique
+  id           String              @id @default(cuid())
+  controlRef   String              @unique
   controlName  String
   domain       String
   criticality  Criticality
   questionText String
-  createdAt    DateTime    @default(now())
+  framework    AssessmentFramework @default(iso27001)
+  createdAt    DateTime            @default(now())
   answers      Answer[]
 
   @@index([domain])
+  @@index([framework])
 }
 
 model Answer {

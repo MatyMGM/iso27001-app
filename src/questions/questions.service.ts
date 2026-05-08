@@ -5,9 +5,13 @@ import { PrismaService } from '../prisma/prisma.service';
 export class QuestionsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll(domain?: string) {
+  findAll(domain?: string, tier?: string, framework?: string) {
+    const where: Record<string, unknown> = {};
+    if (domain) where.domain = domain;
+    if (tier === 'free') where.criticality = 'alta';
+    where.framework = framework ?? 'iso27001';
     return this.prisma.question.findMany({
-      where: domain ? { domain } : undefined,
+      where,
       orderBy: { controlRef: 'asc' },
     });
   }

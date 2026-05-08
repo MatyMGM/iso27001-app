@@ -6,8 +6,12 @@ export class QuestionsController {
   constructor(private readonly questions: QuestionsService) {}
 
   @Get()
-  findAll(@Query('domain') domain?: string) {
-    return this.questions.findAll(domain);
+  findAll(
+    @Query('domain') domain?: string,
+    @Query('tier') tier?: string,
+    @Query('framework') framework?: string,
+  ) {
+    return this.questions.findAll(domain, tier, framework);
   }
 
   @Get(':id')

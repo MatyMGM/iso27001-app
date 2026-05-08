@@ -10,9 +10,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Download, AlertCircle } from "lucide-react";
+import { Loader2, Download, AlertCircle, Lock } from "lucide-react";
 import { api } from "@/lib/api";
-import type { Answer, AnswerValue, Assessment, Question } from "@/lib/types";
+import type { Answer, AnswerValue, Assessment, AssessmentFramework, AssessmentType, Question } from "@/lib/types";
 import {
   gapsFromAnswers,
   roadmapFromGaps,
@@ -24,36 +24,112 @@ import { DomainRadar } from "@/components/domain-radar";
 import { GapTable } from "@/components/gap-table";
 import { Roadmap } from "@/components/roadmap";
 
-const ALL_DOMAINS = [
-  "Controles organizacionales",
-  "Controles de personas",
-  "Controles físicos",
-  "Controles tecnológicos",
-];
+// ─── Framework configuration ──────────────────────────────────────────────────
 
-const DOMAIN_SHORT: Record<string, string> = {
-  "Controles organizacionales": "A.5 Org.",
-  "Controles de personas": "A.6 Personas",
-  "Controles físicos": "A.7 Físicos",
-  "Controles tecnológicos": "A.8 Tec.",
+interface FrameworkMeta {
+  label: string;
+  domains: string[];
+  domainShort: Record<string, string>;
+  radarDesc: string;
+  controlsDesc: string;
+}
+
+const FRAMEWORK_META: Record<AssessmentFramework, FrameworkMeta> = {
+  iso27001: {
+    label: "ISO/IEC 27001:2022",
+    domains: [
+      "Controles organizacionales",
+      "Controles de personas",
+      "Controles físicos",
+      "Controles tecnológicos",
+    ],
+    domainShort: {
+      "Controles organizacionales": "A.5 Org.",
+      "Controles de personas": "A.6 Personas",
+      "Controles físicos": "A.7 Físicos",
+      "Controles tecnológicos": "A.8 Tec.",
+    },
+    radarDesc: "A.5 Org · A.6 Personas · A.7 Físicos · A.8 Tec.",
+    controlsDesc: "del Anexo A",
+  },
+  soc2: {
+    label: "SOC 2",
+    domains: [
+      "Criterios Comunes",
+      "Disponibilidad",
+      "Confidencialidad",
+      "Integridad de Procesamiento",
+      "Privacidad",
+    ],
+    domainShort: {
+      "Criterios Comunes": "CC",
+      "Disponibilidad": "A",
+      "Confidencialidad": "C",
+      "Integridad de Procesamiento": "PI",
+      "Privacidad": "P",
+    },
+    radarDesc: "CC · Disponibilidad · Confidencialidad · PI · Privacidad",
+    controlsDesc: "Trust Service Criteria",
+  },
+  cis: {
+    label: "CIS Controls v8",
+    domains: ["IG1", "IG2", "IG3"],
+    domainShort: {
+      "IG1": "IG1 Básico",
+      "IG2": "IG2 Interm.",
+      "IG3": "IG3 Avanz.",
+    },
+    radarDesc: "IG1 Básico · IG2 Intermedio · IG3 Avanzado",
+    controlsDesc: "CIS Controls v8",
+  },
 };
 
-// Backend `/analyze` is a stub: we keep polling for `status === "analyzed"`
-// but fall back to a client-computed report after a few seconds so the user
-// always lands on a useful screen.
+// ─── AI summary card ──────────────────────────────────────────────────────────
+
+function AiSummaryCard({ aiReport, framework }: { aiReport: Record<string, unknown>; framework: AssessmentFramework }) {
+  const summary =
+    typeof aiReport.executiveSummary === "string"
+      ? aiReport.executiveSummary
+      : "Resumen ejecutivo no disponible.";
+  const fwLabel = FRAMEWORK_META[framework]?.label ?? framework;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Análisis ejecutivo IA</CardTitle>
+        <CardDescription>
+          Generado por LLaMA 3.3 70B · Groq · Marco: {fwLabel}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
+          {summary}
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
 const FALLBACK_AFTER_MS = 6000;
 const POLL_INTERVAL_MS = 2000;
 
+// ─── Main component ───────────────────────────────────────────────────────────
+
 export function ReportView({ assessmentId }: { assessmentId: string }) {
   const [assessment, setAssessment] = useState<Assessment | null>(null);
-  const [answers, setAnswers] = useState<(Answer & { question?: Question })[]>(
-    [],
-  );
+  const [answers, setAnswers] = useState<(Answer & { question?: Question })[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+
+  const assessmentType: AssessmentType = (assessment?.type as AssessmentType) ?? "premium";
+  const assessmentFramework: AssessmentFramework = (assessment?.framework as AssessmentFramework) ?? "iso27001";
+  const isPremium = assessmentType === "premium";
+  const isFree = assessmentType === "free";
+  const fwMeta = FRAMEWORK_META[assessmentFramework] ?? FRAMEWORK_META.iso27001;
 
   useEffect(() => {
     let cancelled = false;
@@ -68,6 +144,13 @@ export function ReportView({ assessmentId }: { assessmentId: string }) {
         if (a.answers) setAnswers(a.answers);
 
         const elapsed = Date.now() - start;
+        const type: AssessmentType = (a.type as AssessmentType) ?? "premium";
+
+        if (type !== "premium") {
+          setReady(true);
+          return;
+        }
+
         if (a.status === "analyzed" || elapsed >= FALLBACK_AFTER_MS) {
           setReady(true);
           return;
@@ -87,17 +170,15 @@ export function ReportView({ assessmentId }: { assessmentId: string }) {
   }, [assessmentId]);
 
   useEffect(() => {
+    if (!assessment) return;
+    const framework: AssessmentFramework = (assessment.framework as AssessmentFramework) ?? "iso27001";
     let cancelled = false;
     api
-      .listQuestions()
-      .then((qs) => {
-        if (!cancelled) setQuestions(qs);
-      })
+      .listQuestions(undefined, undefined, framework)
+      .then((qs) => { if (!cancelled) setQuestions(qs); })
       .catch(() => undefined);
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    return () => { cancelled = true; };
+  }, [assessment]);
 
   if (error) {
     return (
@@ -117,18 +198,21 @@ export function ReportView({ assessmentId }: { assessmentId: string }) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center space-y-3">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <h2 className="text-xl font-semibold">Analizando respuestas</h2>
+        <h2 className="text-xl font-semibold">Analizando respuestas con IA</h2>
         <p className="text-sm text-muted-foreground max-w-md">
-          Estamos generando tu reporte de madurez. Esto puede tomar unos
-          segundos...
+          Estamos generando tu reporte de madurez con análisis inteligente. Esto puede tomar unos segundos...
         </p>
       </div>
     );
   }
 
-  const answeredIds = new Set(answers.map((a) => a.questionId));
-  const unanswered: (Answer & { question?: Question })[] = questions
-    .filter((q) => !answeredIds.has(q.id))
+  const answeredQuestionIds = new Set(answers.map((a) => a.questionId));
+  const relevantQuestions = isFree
+    ? questions.filter((q) => answeredQuestionIds.has(q.id))
+    : questions;
+
+  const unanswered: (Answer & { question?: Question })[] = relevantQuestions
+    .filter((q) => !answeredQuestionIds.has(q.id))
     .map((q) => ({
       id: `synthetic-${q.id}`,
       assessmentId,
@@ -141,14 +225,14 @@ export function ReportView({ assessmentId }: { assessmentId: string }) {
 
   const overall = scoreFromAnswers(allAnswers);
   const byDomain = scoreByDomain(allAnswers);
-  const radarData = ALL_DOMAINS.map((d) => ({
-    domain: DOMAIN_SHORT[d] ?? d,
+  const radarData = fwMeta.domains.map((d) => ({
+    domain: fwMeta.domainShort[d] ?? d,
     score: byDomain[d] ?? 0,
   }));
   const gaps = gapsFromAnswers(allAnswers);
   const phases = roadmapFromGaps(gaps);
   const totalAnswered = answers.length;
-  const totalControls = questions.length || allAnswers.length;
+  const totalControls = relevantQuestions.length || allAnswers.length;
   const totalUnanswered = unanswered.length;
   const totalGaps = gaps.length;
 
@@ -156,9 +240,15 @@ export function ReportView({ assessmentId }: { assessmentId: string }) {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">
-            Reporte de madurez
-          </h1>
+          <div className="flex items-center gap-2 mb-1">
+            <Badge variant="outline" className="text-xs">{fwMeta.label}</Badge>
+            {isFree && (
+              <Badge variant="secondary" className="text-xs">
+                Plan Gratis — evaluación reducida (alta criticidad)
+              </Badge>
+            )}
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold">Reporte de madurez</h1>
           <p className="text-sm text-muted-foreground">
             {assessment?.company?.name ?? "Empresa"} · {totalAnswered} de{" "}
             {totalControls} controles respondidos
@@ -168,33 +258,43 @@ export function ReportView({ assessmentId }: { assessmentId: string }) {
             · {totalGaps} brechas detectadas
           </p>
         </div>
+
         <div className="flex flex-col items-end gap-1">
-          <Button
-            variant="outline"
-            disabled={downloading}
-            onClick={async () => {
-              setDownloading(true);
-              setDownloadError(null);
-              try {
-                await api.downloadReportPdf(assessmentId);
-              } catch (err) {
-                setDownloadError(
-                  err instanceof Error ? err.message : "Error al descargar",
-                );
-              } finally {
-                setDownloading(false);
-              }
-            }}
-          >
-            {downloading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Download className="mr-2 h-4 w-4" />
-            )}
-            {downloading ? "Generando PDF..." : "Descargar PDF"}
-          </Button>
-          {downloadError && (
-            <p className="text-xs text-destructive">{downloadError}</p>
+          {isPremium ? (
+            <>
+              <Button
+                variant="outline"
+                disabled={downloading}
+                onClick={async () => {
+                  setDownloading(true);
+                  setDownloadError(null);
+                  try {
+                    await api.downloadReportPdf(assessmentId);
+                  } catch (err) {
+                    setDownloadError(
+                      err instanceof Error ? err.message : "Error al descargar",
+                    );
+                  } finally {
+                    setDownloading(false);
+                  }
+                }}
+              >
+                {downloading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="mr-2 h-4 w-4" />
+                )}
+                {downloading ? "Generando PDF..." : "Descargar PDF"}
+              </Button>
+              {downloadError && (
+                <p className="text-xs text-destructive">{downloadError}</p>
+              )}
+            </>
+          ) : (
+            <Button variant="outline" disabled className="opacity-60">
+              <Lock className="mr-2 h-4 w-4" />
+              PDF — Plan Premium
+            </Button>
           )}
         </div>
       </div>
@@ -204,7 +304,7 @@ export function ReportView({ assessmentId }: { assessmentId: string }) {
           <CardHeader>
             <CardTitle>Puntaje global</CardTitle>
             <CardDescription>
-              Madurez ponderada de los controles del Anexo A
+              Madurez ponderada de los controles{isFree ? " de alta criticidad" : ` ${fwMeta.controlsDesc}`}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center pb-8">
@@ -215,9 +315,7 @@ export function ReportView({ assessmentId }: { assessmentId: string }) {
         <Card>
           <CardHeader>
             <CardTitle>Madurez por dominio</CardTitle>
-            <CardDescription>
-              A.5 Org · A.6 Personas · A.7 Físicos · A.8 Tec.
-            </CardDescription>
+            <CardDescription>{fwMeta.radarDesc}</CardDescription>
           </CardHeader>
           <CardContent>
             <DomainRadar data={radarData} />
@@ -240,8 +338,7 @@ export function ReportView({ assessmentId }: { assessmentId: string }) {
         <CardHeader>
           <CardTitle>Brechas detectadas</CardTitle>
           <CardDescription>
-            Controles con implementación nula o parcial, ordenados por
-            criticidad.
+            Controles con implementación nula o parcial, ordenados por criticidad.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -260,6 +357,13 @@ export function ReportView({ assessmentId }: { assessmentId: string }) {
           <Roadmap phases={phases} />
         </CardContent>
       </Card>
+
+      {isPremium && assessment?.aiReport
+        ? <AiSummaryCard
+            aiReport={assessment.aiReport as Record<string, unknown>}
+            framework={assessmentFramework}
+          />
+        : null}
     </div>
   );
 }

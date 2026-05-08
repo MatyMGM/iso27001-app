@@ -29,6 +29,16 @@ export class AssessmentsController {
     return this.assessments.findAll(companyId);
   }
 
+  @Get('benchmark')
+  getBenchmark() {
+    return this.assessments.getBenchmark();
+  }
+
+  @Get('by-user/:userId')
+  findByUser(@Param('userId') userId: string) {
+    return this.assessments.findByUser(userId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.assessments.findOne(id);

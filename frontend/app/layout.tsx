@@ -4,8 +4,8 @@ import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ISO 27001 Assessment",
-  description: "Evaluación de madurez ISO 27001:2022 — Anexo A",
+  title: "MGM Certifications",
+  description: "MGM Certifications — Evaluación de madurez ISO 27001:2022",
 };
 
 export default function RootLayout({

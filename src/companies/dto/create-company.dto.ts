@@ -15,4 +15,8 @@ export class CreateCompanyDto {
   @IsString()
   @MaxLength(60)
   size?: string;
+
+  @IsOptional()
+  @IsString()
+  userId?: string;
 }

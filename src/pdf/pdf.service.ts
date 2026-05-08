@@ -23,6 +23,7 @@ export interface ReportPayload {
   gaps: ReportGap[];
   remediationRoadmap: ReportPhase[];
   executiveSummary: string;
+  framework?: string;
 }
 
 @Injectable()
@@ -87,7 +88,14 @@ function priorityClass(priority: string): string {
   return 'prio-baja';
 }
 
+const FRAMEWORK_LABELS: Record<string, { title: string; subtitle: string }> = {
+  iso27001: { title: 'Reporte de madurez ISO/IEC 27001:2022', subtitle: 'Evaluación de controles del Anexo A' },
+  soc2:     { title: 'Reporte de madurez SOC 2', subtitle: 'Evaluación de Trust Service Criteria (AICPA)' },
+  cis:      { title: 'Reporte de madurez CIS Controls v8', subtitle: 'Evaluación de Implementation Groups (IG1/IG2/IG3)' },
+};
+
 function renderHtml(p: ReportPayload): string {
+  const fw = FRAMEWORK_LABELS[p.framework ?? 'iso27001'] ?? FRAMEWORK_LABELS.iso27001;
   const dateStr = p.generatedAt.toLocaleDateString('es-AR', {
     year: 'numeric',
     month: 'long',
@@ -160,7 +168,7 @@ function renderHtml(p: ReportPayload): string {
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<title>Reporte ISO 27001 — ${escapeHtml(p.companyName)}</title>
+<title>MGM Certifications — ${escapeHtml(fw.title)} · ${escapeHtml(p.companyName)}</title>
 <style>
   * { box-sizing: border-box; }
   body { font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #0f172a; margin: 0; font-size: 11pt; line-height: 1.45; }
@@ -209,8 +217,8 @@ function renderHtml(p: ReportPayload): string {
 </head>
 <body>
   <div class="cover">
-    <p class="eyebrow">Reporte de madurez ISO/IEC 27001:2022</p>
-    <h1>Evaluación de controles</h1>
+    <p class="eyebrow">${escapeHtml(fw.title)}</p>
+    <h1>${escapeHtml(fw.subtitle)}</h1>
     <p class="company">${escapeHtml(p.companyName)}</p>
     <div class="score-circle" style="--s:${Math.max(0, Math.min(100, p.overallScore))}">
       <span>${Math.round(p.overallScore)}%</span>

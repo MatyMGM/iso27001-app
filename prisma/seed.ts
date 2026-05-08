@@ -8,6 +8,7 @@ type ControlSeed = {
   domain: string;
   criticality: Criticality;
   questionText: string;
+  framework?: string;
 };
 
 const ORGANIZATIONAL = 'Controles organizacionales';
@@ -769,6 +770,266 @@ const controls: ControlSeed[] = [
   },
 ];
 
+// ─── SOC 2 Trust Service Criteria ────────────────────────────────────────────
+
+const CC = 'Criterios Comunes';
+const AVAIL = 'Disponibilidad';
+const CONF = 'Confidencialidad';
+const PI = 'Integridad de Procesamiento';
+const PRIV = 'Privacidad';
+
+const soc2Controls: ControlSeed[] = [
+  // CC1 - Control Environment
+  { controlRef: 'CC1.1', controlName: 'Integridad y valores éticos', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La organización demuestra compromiso con la integridad y los valores éticos a través de sus estándares de conducta y el modelaje de comportamiento de la dirección?' },
+  { controlRef: 'CC1.2', controlName: 'Supervisión del consejo directivo', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿El consejo directivo o equivalente ejerce supervisión independiente sobre el desarrollo y desempeño del control interno del sistema?' },
+  { controlRef: 'CC1.3', controlName: 'Estructura organizacional y responsabilidades', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La dirección establece estructuras, líneas de reporte y niveles de autoridad apropiados para alcanzar los objetivos del sistema?' },
+  { controlRef: 'CC1.4', controlName: 'Competencia y compromiso con el talento', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La organización demuestra compromiso para atraer, desarrollar y retener personas competentes alineadas con los objetivos del sistema?' },
+  { controlRef: 'CC1.5', controlName: 'Rendición de cuentas por el control interno', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿Se establecen mecanismos de rendición de cuentas que responsabilizan a los individuos por sus obligaciones de control interno?' },
+  // CC2 - Communication and Information
+  { controlRef: 'CC2.1', controlName: 'Información de calidad para el control interno', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La organización obtiene o genera y utiliza información relevante y de calidad para apoyar el funcionamiento del control interno?' },
+  { controlRef: 'CC2.2', controlName: 'Comunicación interna de información', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La organización comunica internamente información relevante, incluidos los objetivos y responsabilidades del control interno?' },
+  { controlRef: 'CC2.3', controlName: 'Comunicación externa', domain: CC, criticality: 'media', framework: 'soc2',
+    questionText: '¿La organización se comunica con las partes externas sobre temas que afectan el funcionamiento del control interno del sistema?' },
+  // CC3 - Risk Assessment
+  { controlRef: 'CC3.1', controlName: 'Especificación de objetivos', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La organización especifica objetivos con suficiente claridad para permitir la identificación y evaluación de riesgos para su logro?' },
+  { controlRef: 'CC3.2', controlName: 'Identificación y análisis de riesgos', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La organización identifica los riesgos para el logro de sus objetivos y los analiza como base para determinar cómo deben gestionarse?' },
+  { controlRef: 'CC3.3', controlName: 'Evaluación del riesgo de fraude', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La organización considera la posibilidad de fraude en la evaluación de los riesgos para el logro de sus objetivos?' },
+  { controlRef: 'CC3.4', controlName: 'Identificación de cambios significativos', domain: CC, criticality: 'media', framework: 'soc2',
+    questionText: '¿La organización identifica y evalúa los cambios que podrían impactar significativamente el sistema de control interno?' },
+  // CC4 - Monitoring
+  { controlRef: 'CC4.1', controlName: 'Evaluaciones continuas y separadas', domain: CC, criticality: 'media', framework: 'soc2',
+    questionText: '¿La organización selecciona, desarrolla y realiza evaluaciones continuas o separadas para determinar si los componentes del control interno están presentes y funcionando?' },
+  { controlRef: 'CC4.2', controlName: 'Evaluación y comunicación de deficiencias', domain: CC, criticality: 'media', framework: 'soc2',
+    questionText: '¿La organización evalúa y comunica las deficiencias del control interno de manera oportuna a las partes responsables de tomar acciones correctivas?' },
+  // CC5 - Control Activities
+  { controlRef: 'CC5.1', controlName: 'Actividades de control para mitigar riesgos', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La organización selecciona y desarrolla actividades de control que contribuyen a la mitigación de riesgos para el logro de objetivos a niveles aceptables?' },
+  { controlRef: 'CC5.2', controlName: 'Controles generales sobre tecnología', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La organización selecciona y desarrolla actividades de control generales sobre la tecnología para apoyar el logro de los objetivos del sistema?' },
+  { controlRef: 'CC5.3', controlName: 'Políticas y procedimientos de control', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La organización implementa las actividades de control a través de políticas y procedimientos que establezcan lo que se espera y cómo ejecutarlo?' },
+  // CC6 - Logical and Physical Access
+  { controlRef: 'CC6.1', controlName: 'Controles de acceso lógico', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La entidad implementa controles de acceso lógico para proteger los componentes del sistema contra amenazas de fuentes externas e internas?' },
+  { controlRef: 'CC6.2', controlName: 'Registro y autorización de acceso', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿El acceso a los componentes del sistema se registra, autoriza, modifica o elimina de manera oportuna con base en la autorización?' },
+  { controlRef: 'CC6.3', controlName: 'Eliminación de acceso al cambiar roles', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La entidad elimina el acceso a los componentes del sistema cuando el personal cambia de roles o termina su relación con la organización?' },
+  { controlRef: 'CC6.4', controlName: 'Control de acceso físico', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La entidad restringe el acceso físico a las instalaciones y recursos del sistema de información a personas autorizadas?' },
+  { controlRef: 'CC6.5', controlName: 'Protección contra amenazas externas', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La entidad implementa controles para proteger el sistema contra amenazas ambientales externas (incendios, inundaciones, interferencias)?' },
+  { controlRef: 'CC6.6', controlName: 'Autenticación antes del acceso', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La entidad requiere autenticación antes de permitir el acceso a los componentes del sistema, incluyendo MFA donde sea apropiado?' },
+  { controlRef: 'CC6.7', controlName: 'Transmisión y eliminación de datos', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La entidad gestiona la transmisión, movimiento y eliminación de información para alcanzar los objetivos de seguridad del servicio?' },
+  { controlRef: 'CC6.8', controlName: 'Detección de software malicioso', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La entidad implementa controles para prevenir o detectar y actuar ante software no autorizado o malicioso?' },
+  // CC7 - System Operations
+  { controlRef: 'CC7.1', controlName: 'Detección de vulnerabilidades y amenazas', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La entidad utiliza herramientas de detección para identificar configuraciones inseguras, vulnerabilidades y actividad maliciosa en tiempo oportuno?' },
+  { controlRef: 'CC7.2', controlName: 'Monitoreo del sistema', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La entidad monitorea los componentes del sistema y opera controles para detectar y actuar ante posibles o reales amenazas de seguridad?' },
+  { controlRef: 'CC7.3', controlName: 'Evaluación de eventos de seguridad', domain: CC, criticality: 'media', framework: 'soc2',
+    questionText: '¿La entidad evalúa los eventos de seguridad para determinar si constituyen incidentes de seguridad y los prioriza según su impacto?' },
+  { controlRef: 'CC7.4', controlName: 'Respuesta a incidentes', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La entidad responde a los incidentes de seguridad identificados según procedimientos de respuesta a incidentes documentados y probados?' },
+  { controlRef: 'CC7.5', controlName: 'Recuperación de incidentes', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La entidad identifica, desarrolla y ejecuta actividades de recuperación para restablecer el sistema ante incidentes de seguridad?' },
+  // CC8 - Change Management
+  { controlRef: 'CC8.1', controlName: 'Gestión de cambios en infraestructura y software', domain: CC, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La entidad autoriza, diseña, desarrolla, configura, documenta, prueba, aprueba e implementa los cambios a la infraestructura, datos, software y procedimientos?' },
+  // CC9 - Risk Mitigation
+  { controlRef: 'CC9.1', controlName: 'Actividades de mitigación de riesgos', domain: CC, criticality: 'media', framework: 'soc2',
+    questionText: '¿La entidad identifica, selecciona y desarrolla actividades de mitigación de riesgos derivadas de las evaluaciones de riesgo de negocio?' },
+  { controlRef: 'CC9.2', controlName: 'Evaluación de proveedores y socios', domain: CC, criticality: 'media', framework: 'soc2',
+    questionText: '¿La entidad evalúa y monitorea a los proveedores y socios de negocios que podrían afectar la capacidad de alcanzar los objetivos del sistema?' },
+  // A1 - Availability
+  { controlRef: 'A1.1', controlName: 'Capacidad y rendimiento del sistema', domain: AVAIL, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La entidad mantiene, monitorea y evalúa la capacidad de procesamiento e infraestructura actuales y proyectados para alcanzar los objetivos de disponibilidad?' },
+  { controlRef: 'A1.2', controlName: 'Monitoreo y alertas de disponibilidad', domain: AVAIL, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La entidad autoriza, implementa y opera infraestructura de detección de amenazas, monitoreo y alertas para los objetivos de disponibilidad del sistema?' },
+  { controlRef: 'A1.3', controlName: 'Recuperación y continuidad del negocio', domain: AVAIL, criticality: 'alta', framework: 'soc2',
+    questionText: '¿La entidad cuenta con procedimientos de respaldo, recuperación y continuidad del negocio documentados y probados para garantizar la disponibilidad?' },
+  // C1 - Confidentiality
+  { controlRef: 'C1.1', controlName: 'Identificación de información confidencial', domain: CONF, criticality: 'media', framework: 'soc2',
+    questionText: '¿La entidad identifica y mantiene la información designada como confidencial para alcanzar los objetivos de confidencialidad del sistema?' },
+  { controlRef: 'C1.2', controlName: 'Eliminación de información confidencial', domain: CONF, criticality: 'media', framework: 'soc2',
+    questionText: '¿La entidad elimina la información confidencial cuando ya no es necesaria para cumplir los objetivos del sistema?' },
+  // PI1 - Processing Integrity
+  { controlRef: 'PI1.1', controlName: 'Entradas completas y precisas', domain: PI, criticality: 'media', framework: 'soc2',
+    questionText: '¿La entidad obtiene o genera y utiliza información relevante y de calidad para soportar el funcionamiento del control de integridad del procesamiento?' },
+  { controlRef: 'PI1.2', controlName: 'Salidas completas y precisas', domain: PI, criticality: 'media', framework: 'soc2',
+    questionText: '¿El sistema produce salidas completas, precisas y oportunas para alcanzar los objetivos de servicio?' },
+  { controlRef: 'PI1.3', controlName: 'Controles de procesamiento del sistema', domain: PI, criticality: 'media', framework: 'soc2',
+    questionText: '¿La entidad implementa controles sobre el procesamiento del sistema para alcanzar los objetivos de integridad del procesamiento?' },
+  { controlRef: 'PI1.4', controlName: 'Almacenamiento y distribución de salidas', domain: PI, criticality: 'media', framework: 'soc2',
+    questionText: '¿Las salidas se almacenan o distribuyen de manera completa, precisa y oportuna a los destinatores autorizados?' },
+  { controlRef: 'PI1.5', controlName: 'Evaluación del procesamiento completo', domain: PI, criticality: 'media', framework: 'soc2',
+    questionText: '¿La entidad realiza actividades para evaluar que el procesamiento del sistema sea completo, preciso y autorizado?' },
+  // P1-P8 - Privacy
+  { controlRef: 'P1.1', controlName: 'Aviso de prácticas de privacidad', domain: PRIV, criticality: 'baja', framework: 'soc2',
+    questionText: '¿La entidad proporciona aviso claro a los individuos sobre sus políticas de recopilación, uso, retención y divulgación de información personal?' },
+  { controlRef: 'P2.1', controlName: 'Elección y consentimiento', domain: PRIV, criticality: 'baja', framework: 'soc2',
+    questionText: '¿La entidad comunica opciones de elección a los individuos respecto al uso de su información personal, incluyendo el consentimiento explícito donde aplique?' },
+  { controlRef: 'P3.1', controlName: 'Recopilación compatible con el propósito', domain: PRIV, criticality: 'baja', framework: 'soc2',
+    questionText: '¿La entidad recopila información personal únicamente para los propósitos identificados en el aviso de privacidad o cuando está autorizado legalmente?' },
+  { controlRef: 'P3.2', controlName: 'Información explícita del sujeto', domain: PRIV, criticality: 'baja', framework: 'soc2',
+    questionText: '¿La entidad obtiene confirmación explícita del individuo cuando recopila información personal adicional a la indicada en el aviso?' },
+  { controlRef: 'P4.1', controlName: 'Límites de uso de información personal', domain: PRIV, criticality: 'baja', framework: 'soc2',
+    questionText: '¿La entidad limita el uso de la información personal a los propósitos identificados en el aviso de privacidad y los acordados con el individuo?' },
+  { controlRef: 'P4.2', controlName: 'Retención de información personal', domain: PRIV, criticality: 'baja', framework: 'soc2',
+    questionText: '¿La entidad retiene la información personal de acuerdo con las políticas establecidas durante el período necesario para cumplir los propósitos identificados?' },
+  { controlRef: 'P4.3', controlName: 'Eliminación de información personal', domain: PRIV, criticality: 'baja', framework: 'soc2',
+    questionText: '¿La entidad elimina la información personal de acuerdo con sus políticas cuando ya no es necesaria para los propósitos identificados?' },
+  { controlRef: 'P5.1', controlName: 'Acceso de individuos a su información', domain: PRIV, criticality: 'baja', framework: 'soc2',
+    questionText: '¿La entidad proporciona a los individuos la capacidad de acceder a su información personal para revisión y actualización dentro de un plazo razonable?' },
+  { controlRef: 'P6.1', controlName: 'Divulgación autorizada a terceros', domain: PRIV, criticality: 'baja', framework: 'soc2',
+    questionText: '¿La entidad divulga información personal a terceros únicamente para los propósitos identificados en el aviso de privacidad o cuando está autorizado?' },
+  { controlRef: 'P6.2', controlName: 'Registros de divulgación a terceros', domain: PRIV, criticality: 'baja', framework: 'soc2',
+    questionText: '¿La entidad crea y mantiene registros de las divulgaciones de información personal a terceros, incluyendo el propósito, el destinatario y la fecha?' },
+  { controlRef: 'P7.1', controlName: 'Exactitud e integridad de información personal', domain: PRIV, criticality: 'baja', framework: 'soc2',
+    questionText: '¿La entidad mantiene la exactitud, integridad y relevancia de la información personal para los propósitos identificados?' },
+  { controlRef: 'P8.1', controlName: 'Monitoreo y cumplimiento de privacidad', domain: PRIV, criticality: 'baja', framework: 'soc2',
+    questionText: '¿La entidad implementa un proceso para recibir, abordar y resolver quejas sobre sus prácticas de privacidad y notificar a los individuos sobre el resultado?' },
+];
+
+// ─── CIS Controls v8 ─────────────────────────────────────────────────────────
+
+const IG1 = 'IG1';
+const IG2 = 'IG2';
+const IG3 = 'IG3';
+
+const cisControls: ControlSeed[] = [
+  // IG1 — Higiene básica (alta criticidad, aplica a toda organización)
+  { controlRef: 'CIS-1.1', controlName: 'Inventario de activos de hardware', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se establece y mantiene un inventario actualizado de todos los activos tecnológicos de hardware (servidores, estaciones, dispositivos móviles, IoT)?' },
+  { controlRef: 'CIS-1.2', controlName: 'Gestión de activos no autorizados', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Los activos no autorizados detectados en la red se aislan, rechazan o eliminan dentro de las 24-48 horas de su detección?' },
+  { controlRef: 'CIS-2.1', controlName: 'Inventario de software autorizado', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se establece y mantiene un inventario actualizado de todo el software autorizado en los activos de la organización?' },
+  { controlRef: 'CIS-2.2', controlName: 'Software con soporte activo del proveedor', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se garantiza que el software autorizado se encuentra en versiones actualmente soportadas por el proveedor (no end-of-life)?' },
+  { controlRef: 'CIS-3.1', controlName: 'Proceso de gestión de datos', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se establece y mantiene un proceso documentado de gestión del ciclo de vida de los datos sensibles de la organización?' },
+  { controlRef: 'CIS-3.3', controlName: 'Listas de control de acceso a datos', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se configuran y mantienen listas de control de acceso (ACL) para los activos que almacenan o procesan datos sensibles?' },
+  { controlRef: 'CIS-4.1', controlName: 'Proceso de configuración segura', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se establece y mantiene un proceso documentado de configuración segura para todos los activos empresariales (servidores, estaciones, red, aplicaciones)?' },
+  { controlRef: 'CIS-4.2', controlName: 'Configuración segura de sistemas operativos', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se establecen y aplican configuraciones seguras (hardening) para los sistemas operativos de servidores y estaciones de trabajo?' },
+  { controlRef: 'CIS-5.1', controlName: 'Inventario de cuentas de usuario', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se establece y mantiene un inventario de todas las cuentas de usuario, incluyendo cuentas de servicio, administrador y servicio de directorio?' },
+  { controlRef: 'CIS-5.2', controlName: 'Contraseñas únicas y seguras', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Todos los usuarios del sistema utilizan contraseñas únicas de alta complejidad (mínimo 14 caracteres) y se prohíben las contraseñas predeterminadas?' },
+  { controlRef: 'CIS-5.3', controlName: 'Deshabilitación de cuentas inactivas', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Las cuentas inactivas por más de 45 días se deshabilitan automáticamente y las cuentas de ex-empleados se eliminan en 24 horas?' },
+  { controlRef: 'CIS-6.1', controlName: 'Proceso de otorgamiento de acceso', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se establece y documenta un proceso formal para otorgar acceso a los activos empresariales, siguiendo el principio de menor privilegio?' },
+  { controlRef: 'CIS-6.2', controlName: 'Proceso de revocación de acceso', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se establece y ejecuta un proceso documentado para revocar el acceso cuando un empleado cambia de rol, es despedido o renuncia?' },
+  { controlRef: 'CIS-7.1', controlName: 'Proceso de gestión de vulnerabilidades', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se establece y mantiene un proceso documentado de gestión de vulnerabilidades que incluya identificación, clasificación, remediación y verificación?' },
+  { controlRef: 'CIS-8.1', controlName: 'Registros de auditoría (logging)', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se establecen y mantienen registros de auditoría para todos los activos empresariales con funcionalidad de logging, cubriendo eventos de acceso, cambios y errores?' },
+  { controlRef: 'CIS-9.1', controlName: 'Navegadores y clientes de correo seguros', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se garantiza que los navegadores y clientes de correo electrónico utilizados sean versiones totalmente soportadas y actualizadas, sin extensiones innecesarias?' },
+  { controlRef: 'CIS-10.1', controlName: 'Software anti-malware en endpoints', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se implementa y mantiene software anti-malware actualizado en todos los dispositivos finales de la organización?' },
+  { controlRef: 'CIS-11.1', controlName: 'Proceso de recuperación de datos', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se establece y mantiene un proceso documentado de recuperación de datos para los activos empresariales críticos, con copias de seguridad periódicas y probadas?' },
+  { controlRef: 'CIS-12.1', controlName: 'Diagrama de arquitectura de red', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se mantiene y actualiza un diagrama de arquitectura de red documentado que muestre todos los componentes y sus conexiones?' },
+  { controlRef: 'CIS-13.1', controlName: 'Filtrado de tráfico de red', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se aplica filtrado de tráfico de red (firewall, listas de bloqueo) para detectar y bloquear comunicaciones hacia/desde direcciones IP y dominios maliciosos conocidos?' },
+  { controlRef: 'CIS-14.1', controlName: 'Programa de concientización en seguridad', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se establece y mantiene un programa de concientización en seguridad para todos los empleados, actualizado al menos anualmente?' },
+  { controlRef: 'CIS-15.1', controlName: 'Inventario de proveedores de servicios', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se establece y mantiene un inventario de todos los proveedores de servicios de terceros que acceden a activos, redes o datos de la organización?' },
+  { controlRef: 'CIS-16.1', controlName: 'Proceso de gestión segura de aplicaciones', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se establece y mantiene un proceso de gestión segura del ciclo de vida de las aplicaciones, incluyendo pruebas de seguridad antes del despliegue?' },
+  { controlRef: 'CIS-17.1', controlName: 'Designación de responsable de incidentes', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se designa formalmente un responsable de gestión de incidentes y se establece un proceso documentado para reportar, priorizar y responder a incidentes?' },
+  { controlRef: 'CIS-18.1', controlName: 'Programa de pruebas de penetración', domain: IG1, criticality: 'alta', framework: 'cis',
+    questionText: '¿Se establece y mantiene un programa de pruebas de penetración para identificar vulnerabilidades en los activos empresariales?' },
+
+  // IG2 — Controles intermedios (media criticidad)
+  { controlRef: 'CIS-1.3', controlName: 'Descubrimiento activo de activos', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se utilizan herramientas de descubrimiento activo de activos en la red con ejecuciones al menos semanales para mantener actualizado el inventario?' },
+  { controlRef: 'CIS-2.3', controlName: 'Lista de software permitido (allowlist)', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se implementa una lista de software permitido (allowlist) para controlar qué aplicaciones pueden ejecutarse en los activos empresariales?' },
+  { controlRef: 'CIS-3.2', controlName: 'Inventario y clasificación de datos sensibles', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se establece y mantiene un inventario de datos sensibles con su clasificación correspondiente (público, interno, confidencial, secreto)?' },
+  { controlRef: 'CIS-3.4', controlName: 'Cifrado de datos en reposo en endpoints', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se aplica cifrado de datos en reposo en los dispositivos de usuario final que almacenan datos sensibles de la organización?' },
+  { controlRef: 'CIS-4.3', controlName: 'Gestión automatizada de configuración', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se implementan y utilizan herramientas automatizadas de gestión de configuración (IaC, Ansible, SCCM) para mantener las configuraciones seguras?' },
+  { controlRef: 'CIS-4.5', controlName: 'Gestión de dispositivos móviles (MDM)', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se gestiona la configuración de seguridad de los dispositivos móviles corporativos a través de una solución MDM (Mobile Device Management)?' },
+  { controlRef: 'CIS-5.4', controlName: 'Restricción de privilegios administrativos', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Los privilegios administrativos se restringen a cuentas dedicadas usadas exclusivamente para tareas administrativas, prohibiendo el uso de admin para actividad diaria?' },
+  { controlRef: 'CIS-6.4', controlName: 'MFA para acceso administrativo y remoto', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se requiere autenticación multifactor (MFA) para todos los accesos administrativos y accesos remotos a los sistemas de la organización?' },
+  { controlRef: 'CIS-7.2', controlName: 'Gestión de parches automatizada', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se implementa un proceso automatizado de gestión de parches para todos los activos, priorizando vulnerabilidades críticas (remediación en ≤30 días)?' },
+  { controlRef: 'CIS-7.4', controlName: 'Análisis de vulnerabilidades autenticados', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se ejecutan análisis de vulnerabilidades autenticados al menos trimestralmente en todos los activos de la organización?' },
+  { controlRef: 'CIS-8.2', controlName: 'Repositorio centralizado de logs (SIEM)', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se centraliza la recopilación de logs de auditoría en un repositorio o SIEM, con retención de al menos 90 días y alertas configuradas?' },
+  { controlRef: 'CIS-9.2', controlName: 'Filtrado DNS para dominios maliciosos', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se implementan filtros DNS para bloquear automáticamente la resolución de dominios maliciosos conocidos?' },
+  { controlRef: 'CIS-10.2', controlName: 'Detección basada en comportamiento', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se implementan soluciones EDR (Endpoint Detection and Response) con detección basada en comportamiento para identificar actividad maliciosa avanzada?' },
+  { controlRef: 'CIS-11.2', controlName: 'Pruebas de recuperación de datos', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se realizan pruebas documentadas de recuperación de datos al menos trimestralmente para verificar la integridad y el proceso de restauración?' },
+  { controlRef: 'CIS-12.2', controlName: 'Segmentación de red', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se implementa segmentación de red para separar los sistemas con diferentes niveles de sensibilidad (DMZ, servidores críticos, usuarios, IoT)?' },
+  { controlRef: 'CIS-13.2', controlName: 'Monitoreo de tráfico de red (IDS/IPS)', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se implementan sistemas de detección/prevención de intrusiones (IDS/IPS) y monitoreo de tráfico de red para detectar comportamientos anómalos?' },
+  { controlRef: 'CIS-14.2', controlName: 'Simulaciones de phishing periódicas', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se realizan simulaciones de phishing y pruebas de ingeniería social al menos trimestralmente para evaluar la concientización del personal?' },
+  { controlRef: 'CIS-16.2', controlName: 'Revisiones de seguridad en desarrollo (SAST)', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se implementan revisiones de código de seguridad y análisis estático (SAST) como parte del proceso de desarrollo de aplicaciones?' },
+  { controlRef: 'CIS-17.2', controlName: 'Playbooks de respuesta a incidentes', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se establecen y mantienen playbooks documentados de respuesta a incidentes para escenarios comunes (ransomware, phishing, fuga de datos, acceso no autorizado)?' },
+  { controlRef: 'CIS-18.2', controlName: 'Pruebas de penetración externas anuales', domain: IG2, criticality: 'media', framework: 'cis',
+    questionText: '¿Se realizan pruebas de penetración externas conducidas por especialistas independientes al menos una vez al año?' },
+
+  // IG3 — Controles avanzados (baja criticidad)
+  { controlRef: 'CIS-3.5', controlName: 'Gestión de derechos de información (IRM)', domain: IG3, criticality: 'baja', framework: 'cis',
+    questionText: '¿Se implementa gestión de derechos de información (IRM/DRM) para controlar el acceso y uso de información altamente sensible fuera de la organización?' },
+  { controlRef: 'CIS-5.5', controlName: 'Gestión de acceso privilegiado (PAM)', domain: IG3, criticality: 'baja', framework: 'cis',
+    questionText: '¿Se implementa una solución de gestión de acceso privilegiado (PAM) con sesiones grabadas, acceso just-in-time y auditoría completa de actividades privilegiadas?' },
+  { controlRef: 'CIS-6.5', controlName: 'Identidad federada y SSO seguro', domain: IG3, criticality: 'baja', framework: 'cis',
+    questionText: '¿Se implementa gestión de identidad federada y Single Sign-On (SSO) con proveedores de identidad seguros y MFA obligatorio?' },
+  { controlRef: 'CIS-7.5', controlName: 'Gestión de vulnerabilidades de día cero', domain: IG3, criticality: 'baja', framework: 'cis',
+    questionText: '¿Se gestionan activamente los activos con vulnerabilidades de día cero mediante controles compensatorios y se priorizan dentro de las 24 horas de su divulgación pública?' },
+  { controlRef: 'CIS-8.3', controlName: 'Análisis de comportamiento de usuario (UEBA)', domain: IG3, criticality: 'baja', framework: 'cis',
+    questionText: '¿Se implementan herramientas de análisis de comportamiento de usuario y entidades (UEBA) para detectar amenazas internas y actividad anómala?' },
+  { controlRef: 'CIS-12.3', controlName: 'Arquitectura de red Zero Trust', domain: IG3, criticality: 'baja', framework: 'cis',
+    questionText: '¿Se avanza hacia una arquitectura de red de confianza cero (Zero Trust), verificando continuamente la identidad y el contexto de cada acceso?' },
+  { controlRef: 'CIS-13.3', controlName: 'Segmentación dinámica basada en comportamiento', domain: IG3, criticality: 'baja', framework: 'cis',
+    questionText: '¿Se implementan controles de segmentación de red dinámica basados en análisis de comportamiento para aislar automáticamente dispositivos comprometidos?' },
+  { controlRef: 'CIS-14.3', controlName: 'Métricas de eficacia del programa de seguridad', domain: IG3, criticality: 'baja', framework: 'cis',
+    questionText: '¿Se mide la eficacia del programa de concientización en seguridad mediante métricas de comportamiento y se ajusta el contenido según los resultados?' },
+  { controlRef: 'CIS-16.3', controlName: 'Pruebas de seguridad de aplicaciones (DAST)', domain: IG3, criticality: 'baja', framework: 'cis',
+    questionText: '¿Se implementan pruebas dinámicas de seguridad de aplicaciones (DAST) y revisiones de composición de software (SCA) para componentes de terceros?' },
+  { controlRef: 'CIS-17.3', controlName: 'Ejercicios de simulación (tabletop)', domain: IG3, criticality: 'baja', framework: 'cis',
+    questionText: '¿Se realizan ejercicios de simulación de respuesta a incidentes (tabletop exercises) al menos anualmente con la alta dirección y los equipos técnicos?' },
+  { controlRef: 'CIS-18.3', controlName: 'Ejercicios de red team', domain: IG3, criticality: 'baja', framework: 'cis',
+    questionText: '¿Se realizan ejercicios de red team para simular ataques sofisticados contra la organización y evaluar la capacidad de detección y respuesta?' },
+];
+
 async function main() {
   if (controls.length !== 93) {
     throw new Error(
@@ -776,20 +1037,53 @@ async function main() {
     );
   }
 
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   for (const c of controls) {
-    await prisma.question.upsert({
+    await (prisma.question.upsert as any)({
       where: { controlRef: c.controlRef },
       update: {
         controlName: c.controlName,
         domain: c.domain,
         criticality: c.criticality,
         questionText: c.questionText,
+        framework: 'iso27001',
+      },
+      create: { ...c, framework: 'iso27001' },
+    });
+  }
+
+  for (const c of soc2Controls) {
+    await (prisma.question.upsert as any)({
+      where: { controlRef: c.controlRef },
+      update: {
+        controlName: c.controlName,
+        domain: c.domain,
+        criticality: c.criticality,
+        questionText: c.questionText,
+        framework: 'soc2',
       },
       create: c,
     });
   }
 
-  console.log(`Seed completado: ${controls.length} controles cargados.`);
+  for (const c of cisControls) {
+    await (prisma.question.upsert as any)({
+      where: { controlRef: c.controlRef },
+      update: {
+        controlName: c.controlName,
+        domain: c.domain,
+        criticality: c.criticality,
+        questionText: c.questionText,
+        framework: 'cis',
+      },
+      create: c,
+    });
+  }
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+
+  console.log(
+    `Seed completado: ${controls.length} ISO 27001 + ${soc2Controls.length} SOC 2 + ${cisControls.length} CIS Controls v8 preguntas cargadas.`,
+  );
 }
 
 main()

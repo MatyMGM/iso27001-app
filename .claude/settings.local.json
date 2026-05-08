@@ -3,7 +3,17 @@
     "allow": [
       "Bash(npm install *)",
       "Bash(npx tsc *)",
-      "Bash(npm uninstall *)"
+      "Bash(npm uninstall *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\matia\\\\Desktop\\\\Facu\\\\2026\\\\Tesis\\\\Claude\" -Recurse -Directory)",
+      "Bash(Select-Object -First 50)",
+      "Bash(Format-Table FullName)",
+      "Bash(xargs ls -lah)",
+      "Bash(npx prisma *)",
+      "Bash(docker-compose up *)",
+      "Bash(node -e \"require\\('@nestjs/jwt'\\); require\\('@nestjs/passport'\\); require\\('passport-jwt'\\); require\\('bcryptjs'\\); console.log\\('all auth packages ok'\\)\")",
+      "Bash(npx next *)",
+      "Bash(Get-ChildItem *)",
+      "PowerShell(New-Item *)"
     ]
   }
 }
