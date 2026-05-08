@@ -170,7 +170,7 @@ export class AssessmentsService {
   async generateReportPdf(id: string): Promise<{ buffer: Buffer; filename: string }> {
     const assessment = await this.prisma.assessment.findUnique({
       where: { id },
-      include: { company: true },
+      include: { company: true, answers: { include: { question: true } } },
     });
     if (!assessment) throw new NotFoundException(`Assessment ${id} not found`);
 
@@ -182,11 +182,43 @@ export class AssessmentsService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const framework = ((assessment as any).framework as string) ?? 'iso27001';
 
+    // Compute score matching the frontend: answered answers + unanswered questions as "no"
+    const allQuestions = await this.prisma.question.findMany({
+      where: { framework },
+      select: { id: true, domain: true },
+    });
+    const answeredIds = new Set(assessment.answers.map((a) => a.questionId));
+    const weights: Record<string, number | null> = { yes: 1, partial: 0.5, no: 0, na: null };
+
+    const fullAnswers: { value: string; domain: string }[] = [
+      ...assessment.answers
+        .filter((a) => a.question)
+        .map((a) => ({ value: a.value, domain: a.question!.domain })),
+      ...allQuestions
+        .filter((q) => !answeredIds.has(q.id))
+        .map((q) => ({ value: 'no', domain: q.domain })),
+    ];
+    const counted = fullAnswers.filter((a) => weights[a.value] !== null);
+    const overallScore = counted.length === 0
+      ? 0
+      : Math.round((counted.reduce((acc, a) => acc + (weights[a.value] as number), 0) / counted.length) * 100);
+
+    const domainMap: Record<string, { sum: number; count: number }> = {};
+    for (const a of counted) {
+      if (!domainMap[a.domain]) domainMap[a.domain] = { sum: 0, count: 0 };
+      domainMap[a.domain].sum += weights[a.value] as number;
+      domainMap[a.domain].count += 1;
+    }
+    const domainScores: Record<string, number> = {};
+    for (const [domain, { sum, count }] of Object.entries(domainMap)) {
+      domainScores[domain] = Math.round((sum / count) * 100);
+    }
+
     const payload: ReportPayload = {
       companyName: assessment.company.name,
       generatedAt: new Date(),
-      overallScore: Number(report.overallScore ?? 0),
-      domainScores: (report.domainScores as Record<string, number>) ?? {},
+      overallScore,
+      domainScores,
       gaps: ((report.gaps as ReportGap[]) ?? []).map((g) => ({
         control: String(g.control ?? ''),
         description: String(g.description ?? ''),

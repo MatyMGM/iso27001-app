@@ -13,7 +13,8 @@
       "Bash(node -e \"require\\('@nestjs/jwt'\\); require\\('@nestjs/passport'\\); require\\('passport-jwt'\\); require\\('bcryptjs'\\); console.log\\('all auth packages ok'\\)\")",
       "Bash(npx next *)",
       "Bash(Get-ChildItem *)",
-      "PowerShell(New-Item *)"
+      "PowerShell(New-Item *)",
+      "Bash(xargs grep -l \"report\\\\|Report\")"
     ]
   }
 }
