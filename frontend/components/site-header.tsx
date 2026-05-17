@@ -58,8 +58,7 @@ const PLAN_META: Record<
 
 function getScore(a: AssessmentWithAnswers): number | null {
   if (a.status === "draft") return null;
-  const rep = a.aiReport as Record<string, unknown> | null;
-  if (rep?.overallScore !== undefined) return Math.round(Number(rep.overallScore));
+  if (a.computedScore !== null && a.computedScore !== undefined) return a.computedScore;
   if (a.answers?.length) return scoreFromAnswers(a.answers);
   return null;
 }

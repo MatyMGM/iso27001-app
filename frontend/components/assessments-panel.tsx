@@ -54,9 +54,8 @@ const STATUS_LABEL: Record<string, string> = {
 
 function getScore(assessment: AssessmentWithAnswers): number | null {
   if (assessment.status === "draft") return null;
-  const aiReport = assessment.aiReport as Record<string, unknown> | null;
-  if (aiReport?.overallScore !== undefined) {
-    return Math.round(Number(aiReport.overallScore));
+  if (assessment.computedScore !== null && assessment.computedScore !== undefined) {
+    return assessment.computedScore;
   }
   if (assessment.answers && assessment.answers.length > 0) {
     return scoreFromAnswers(assessment.answers);

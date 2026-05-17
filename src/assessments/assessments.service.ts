@@ -44,14 +44,49 @@ export class AssessmentsService {
     });
   }
 
-  findByUser(userId: string) {
-    return this.prisma.assessment.findMany({
+  async findByUser(userId: string) {
+    const assessments = await this.prisma.assessment.findMany({
       where: { company: { userId } },
       orderBy: { createdAt: 'asc' },
       include: {
         company: true,
         answers: { include: { question: true }, orderBy: { question: { controlRef: 'asc' } } },
       },
+    });
+
+    // Recompute score for each non-draft assessment matching the report view logic
+    // (unanswered questions count as "no" for non-free plans)
+    const frameworks = [...new Set(assessments.map((a) => a.framework))];
+    const questionIdsByFramework: Record<string, Set<string>> = {};
+    for (const fw of frameworks) {
+      const qs = await this.prisma.question.findMany({ where: { framework: fw }, select: { id: true } });
+      questionIdsByFramework[fw] = new Set(qs.map((q) => q.id));
+    }
+
+    const weights: Record<string, number | null> = { yes: 1, partial: 0.5, no: 0, na: null };
+
+    return assessments.map((a) => {
+      if (a.status === 'draft') return a;
+
+      const answeredIds = new Set(a.answers.map((ans) => ans.questionId));
+      const allIds = questionIdsByFramework[a.framework] ?? new Set<string>();
+
+      let values: { value: string }[] = [...a.answers];
+
+      if (a.type !== 'free') {
+        const unanswered = [...allIds]
+          .filter((id) => !answeredIds.has(id))
+          .map(() => ({ value: 'no' }));
+        values = [...values, ...unanswered];
+      }
+
+      const counted = values.filter((v) => weights[v.value] !== null);
+      const score =
+        counted.length === 0
+          ? 0
+          : Math.round((counted.reduce((acc, v) => acc + (weights[v.value] as number), 0) / counted.length) * 100);
+
+      return { ...a, computedScore: score };
     });
   }
 
@@ -146,14 +181,35 @@ export class AssessmentsService {
   }
 
   private async computeAndSaveScore(id: string): Promise<void> {
-    const answers = await this.prisma.answer.findMany({
-      where: { assessmentId: id },
-      select: { value: true },
+    const assessment = await this.prisma.assessment.findUnique({
+      where: { id },
+      select: {
+        type: true,
+        framework: true,
+        answers: { select: { questionId: true, value: true } },
+      },
     });
-    const counted = answers.filter((a) => a.value !== 'na');
+    if (!assessment) return;
+
+    const weights: Record<string, number | null> = { yes: 1, partial: 0.5, no: 0, na: null };
+    let allValues: { value: string }[] = [...assessment.answers];
+
+    // Non-free plans: unanswered questions count as "no" (matches report view logic)
+    if (assessment.type !== 'free') {
+      const answeredIds = new Set(assessment.answers.map((a) => a.questionId));
+      const allQuestions = await this.prisma.question.findMany({
+        where: { framework: assessment.framework },
+        select: { id: true },
+      });
+      const unanswered = allQuestions
+        .filter((q) => !answeredIds.has(q.id))
+        .map(() => ({ value: 'no' }));
+      allValues = [...allValues, ...unanswered];
+    }
+
+    const counted = allValues.filter((a) => weights[a.value] !== null);
     if (counted.length === 0) return;
-    const weights: Record<string, number> = { yes: 1, partial: 0.5, no: 0, na: 0 };
-    const sum = counted.reduce((acc, a) => acc + (weights[a.value] ?? 0), 0);
+    const sum = counted.reduce((acc, a) => acc + (weights[a.value] as number), 0);
     const score = Math.round((sum / counted.length) * 100);
     await this.prisma.assessment.update({ where: { id }, data: { computedScore: score } });
   }
