@@ -19,6 +19,7 @@ import {
   ClipboardList,
   Plus,
   FileText,
+  Trash2,
 } from "lucide-react";
 import {
   AreaChart,
@@ -139,6 +140,8 @@ function UserPanel({
 }) {
   const [assessments, setAssessments] = useState<AssessmentWithAnswers[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -150,6 +153,20 @@ function UserPanel({
     return () => { mounted = false; };
   }, [user.id]);
 
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await api.deleteAssessment(deleteTarget);
+      setAssessments((prev) => prev.filter((a) => a.id !== deleteTarget));
+    } catch {
+      // silently ignore — toast not imported here, user can retry
+    } finally {
+      setDeleting(false);
+      setDeleteTarget(null);
+    }
+  }
+
   const completed = assessments.filter((a) => a.status !== "draft");
   const scores = completed.map(getScore);
   const hasChart = completed.filter((_, i) => scores[i] !== null).length >= 2;
@@ -159,7 +176,7 @@ function UserPanel({
     .filter((d) => d.score !== null);
 
   return (
-    <div className="flex flex-col flex-1 overflow-hidden">
+    <div className="relative flex flex-col flex-1 overflow-hidden">
       {/* user info */}
       <div className="px-5 py-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2 min-w-0">
@@ -274,49 +291,95 @@ function UserPanel({
               const delta = score !== null && prev !== null ? score - prev : null;
               const meta = PLAN_META[(a.type as AssessmentType) ?? "premium"];
               const PlanIcon = meta.icon;
-              const canView = a.status !== "draft";
+              const isDraft = a.status === "draft";
 
               return (
-                <Link
-                  key={a.id}
-                  href={`/report/${a.id}`}
-                  onClick={onClose}
-                  className="block rounded-md border border-border bg-card/60 hover:bg-accent/60 hover:border-primary/40 transition-colors p-3 space-y-2 cursor-pointer"
-                >
-                  {/* top row: empresa + plan */}
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-medium truncate">
-                      {a.company?.name ?? "Empresa"}
-                    </p>
-                    <Badge variant={meta.variant} className="text-xs flex items-center gap-0.5 px-1.5 py-0 shrink-0">
-                      <PlanIcon className="h-2.5 w-2.5" />
-                      {meta.label}
-                    </Badge>
-                  </div>
+                <div key={a.id} className="space-y-0.5">
+                  <Link
+                    href={isDraft ? `/assessment/${a.id}` : `/report/${a.id}`}
+                    onClick={onClose}
+                    className="block rounded-md border border-border bg-card/60 hover:bg-accent/60 hover:border-primary/40 transition-colors p-3 space-y-2 cursor-pointer"
+                  >
+                    {/* top row: empresa + plan */}
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium truncate">
+                        {a.company?.name ?? "Empresa"}
+                      </p>
+                      <Badge variant={meta.variant} className="text-xs flex items-center gap-0.5 px-1.5 py-0 shrink-0">
+                        <PlanIcon className="h-2.5 w-2.5" />
+                        {meta.label}
+                      </Badge>
+                    </div>
 
-                  {/* bottom row: score + delta + fecha + icono */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      {score !== null ? (
-                        <span className="text-base font-bold text-primary">{score}%</span>
-                      ) : (
-                        <span className="text-xs text-muted-foreground italic">
-                          {a.status === "draft" ? "En progreso" : "Sin puntaje"}
-                        </span>
-                      )}
-                      <Delta delta={delta} />
+                    {/* bottom row: score + delta + fecha + icono */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        {score !== null ? (
+                          <span className="text-base font-bold text-primary">{score}%</span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground italic">
+                            {isDraft ? "En progreso" : "Sin puntaje"}
+                          </span>
+                        )}
+                        <Delta delta={delta} />
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <span>{fmtDate(a.createdAt)}</span>
+                        <FileText className="h-3 w-3 text-primary/60" />
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <span>{fmtDate(a.createdAt)}</span>
-                      <FileText className="h-3 w-3 text-primary/60" />
+                  </Link>
+
+                  {isDraft && (
+                    <div className="flex justify-end pr-0.5">
+                      <button
+                        type="button"
+                        onClick={() => setDeleteTarget(a.id)}
+                        className="flex items-center gap-1 text-[11px] text-muted-foreground/60 hover:text-destructive transition-colors px-1 py-0.5 rounded"
+                      >
+                        <Trash2 className="h-2.5 w-2.5" />
+                        Eliminar
+                      </button>
                     </div>
-                  </div>
-                </Link>
+                  )}
+                </div>
               );
             })}
           </div>
         )}
       </div>
+
+      {/* confirmation dialog */}
+      {deleteTarget && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-[inherit]">
+          <div className="bg-card border border-border rounded-lg p-5 mx-4 shadow-2xl w-full max-w-xs">
+            <h3 className="font-semibold text-sm mb-1">¿Eliminar evaluación?</h3>
+            <p className="text-xs text-muted-foreground mb-4">
+              Esta acción no se puede deshacer. Se eliminarán la evaluación y todas sus respuestas.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-7"
+                onClick={() => setDeleteTarget(null)}
+                disabled={deleting}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="text-xs h-7"
+                onClick={handleDelete}
+                disabled={deleting}
+              >
+                {deleting ? "Eliminando…" : "Eliminar"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

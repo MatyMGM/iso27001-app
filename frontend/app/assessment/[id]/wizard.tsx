@@ -144,6 +144,18 @@ export function Wizard({ assessmentId }: { assessmentId: string }) {
           map[a.questionId] = { value: a.value, notes: a.notes ?? "" };
         }
         setAnswers(map);
+
+        // Resume from the last domain that has at least one answered question
+        const domains = FRAMEWORK_DOMAINS[framework] ?? FRAMEWORK_DOMAINS.iso27001;
+        const active = domains.filter((d) => qs.some((q) => q.domain === d.id));
+        let resumeStep = 0;
+        for (let i = active.length - 1; i >= 0; i--) {
+          if (qs.filter((q) => q.domain === active[i].id).some((q) => map[q.id]?.value)) {
+            resumeStep = i;
+            break;
+          }
+        }
+        if (mounted) setStep(resumeStep);
       } catch (err) {
         console.error(err);
         toast.error("No se pudieron cargar las preguntas");

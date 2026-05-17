@@ -105,6 +105,9 @@ export const api = {
   getUserAssessments: (userId: string) =>
     request<Assessment[]>(`/assessments/by-user/${userId}`),
 
+  deleteAssessment: (id: string) =>
+    request<void>(`/assessments/${id}`, { method: "DELETE" }),
+
   // Answers
   listAnswers: (assessmentId: string) =>
     request<(Answer & { question?: Question })[]>(
