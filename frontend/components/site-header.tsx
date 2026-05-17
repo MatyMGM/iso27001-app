@@ -335,7 +335,8 @@ export function SiteHeader() {
     const authedNow = isAuthenticated();
     setAuthed(authedNow);
     if (authedNow) setUser(getUser());
-  }, []);
+    else setUser(null);
+  }, [pathname]);
 
   // close sidebar on navigation
   useEffect(() => {

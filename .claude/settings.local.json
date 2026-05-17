@@ -14,7 +14,8 @@
       "Bash(npx next *)",
       "Bash(Get-ChildItem *)",
       "PowerShell(New-Item *)",
-      "Bash(xargs grep -l \"report\\\\|Report\")"
+      "Bash(xargs grep -l \"report\\\\|Report\")",
+      "Bash(Select-Object Name, Mode)"
     ]
   }
 }
